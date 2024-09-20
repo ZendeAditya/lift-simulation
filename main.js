@@ -17,26 +17,20 @@ submitButton.addEventListener("click", () => {
     alert("Please enter floor number in range 1-15");
   } else if (!LiftInput.value) {
     alert("Please enter lift number in range 1-4");
-  } else if (LiftInput.value > 7) {
-    alert("only 7 lifts are allowed!");
   } else if (LiftInput.value == 0 || floorInput.value == 0) {
     alert("Value can't be zero");
-  } else if (floorInput.value > 15) {
-    alert("Maximum no of floors are 15");
   } else if (LiftInput.value < 0 || floorInput.value < 0) {
     alert("No negative values are allowed");
   } else {
     container.innerHTML = " ";
     liftContainer.innerHTML = "";
     for (let i = floorInput.value; i > 0; i--) {
-      
       createFloors(i, LiftInput.value);
     }
     LiftInput.value = "";
     floorInput.value = "";
   }
 });
-
 
 function createFloors(floors, lifts) {
   const floorDiv = document.createElement("div");
@@ -83,7 +77,6 @@ function createFloors(floors, lifts) {
   floorDiv.append(floorContainer);
 
   container.append(floorDiv);
-
 
   for (let j = 0; j < lifts; j++) {
     if (floors === 1) {
