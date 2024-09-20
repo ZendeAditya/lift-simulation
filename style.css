@@ -74,11 +74,25 @@ p {
   border-radius: 4px;
   margin: 0.2em;
 }
+.down-btn {
+  color: #fff;
+  background: rgb(36, 215, 36);
+  border: none;
+  outline: none;
+  padding: 0.5em;
+  width: 8em;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 0.2em;
+}
 
 .floordiv {
   display: flex;
 }
 
+.remove-btn {
+  opacity: 0;
+}
 .floor {
   width: 100%;
   display: flex;

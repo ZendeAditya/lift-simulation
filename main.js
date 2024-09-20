@@ -10,6 +10,7 @@ var prevFloor = 0;
 
 let targetFloors = [];
 
+//on Submit button add values
 submitButton.addEventListener("click", () => {
   if (!LiftInput.value && !floorInput.value) {
     alert("Please Enter number to generate Floors and Lifts");
@@ -25,12 +26,17 @@ submitButton.addEventListener("click", () => {
     container.innerHTML = " ";
     liftContainer.innerHTML = "";
     for (let i = floorInput.value; i > 0; i--) {
+      // make floors
       createFloors(i, LiftInput.value);
     }
+
+    //empty input box
     LiftInput.value = "";
     floorInput.value = "";
   }
 });
+
+// make Floors
 
 function createFloors(floors, lifts) {
   const floorDiv = document.createElement("div");
@@ -82,7 +88,7 @@ function createFloors(floors, lifts) {
     if (floors === 1) {
       let Lifts = document.createElement("div");
       Lifts.setAttribute("class", "lift-div");
-
+      DownButton.classList.add("remove-btn");
       Lifts.setAttribute("onfloor", 1);
 
       Lifts.dataset.currentLocation = prevFloor;
