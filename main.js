@@ -1,168 +1,160 @@
 const floorInput = document.getElementById("floor-input");
-const LiftInput = document.getElementById("lift-input");
+const liftInput = document.getElementById("lift-input");
 const submitButton = document.getElementById("submit-btn");
 const container = document.getElementById("container");
 const liftContainer = document.createElement("div");
 
 let floorVal = "";
 let liftVal = "";
-var prevFloor = 0;
+let prevFloor = 0;
 
-let targetFloors = [];
+let upTargetFloors = [];
+let downTargetFloors = [];
 
-//on Submit button add values
 submitButton.addEventListener("click", () => {
-  if (!LiftInput.value && !floorInput.value) {
+  if (!liftInput.value && !floorInput.value) {
     alert("Please Enter number to generate Floors and Lifts");
   } else if (!floorInput.value) {
     alert("Please enter floor number in range 1-15");
-  } else if (!LiftInput.value) {
+  } else if (!liftInput.value) {
     alert("Please enter lift number in range 1-4");
-  } else if (LiftInput.value == 0 || floorInput.value == 0) {
+  } else if (liftInput.value == 0 || floorInput.value == 0) {
     alert("Value can't be zero");
-  } else if (LiftInput.value < 0 || floorInput.value < 0) {
+  } else if (liftInput.value < 0 || floorInput.value < 0) {
     alert("No negative values are allowed");
   } else {
-    container.innerHTML = " ";
+    container.innerHTML = "";
     liftContainer.innerHTML = "";
     for (let i = floorInput.value; i > 0; i--) {
-      // make floors
-      createFloors(i, LiftInput.value);
+      createFloors(i, liftInput.value);
     }
 
-    //empty input box
-    LiftInput.value = "";
+    liftInput.value = "";
     floorInput.value = "";
   }
 });
 
-// make Floors
-
 function createFloors(floors, lifts) {
   const floorDiv = document.createElement("div");
-
   floorDiv.setAttribute("class", "floordiv");
 
   const floorContainer = document.createElement("div");
   floorContainer.setAttribute("class", "floor");
-
   floorContainer.dataset.floor = floors;
 
   const buttonContainer = document.createElement("div");
-
   buttonContainer.setAttribute("class", "btn-div");
 
-  const UpButton = document.createElement("button");
-  const DownButton = document.createElement("button");
+  const upButton = document.createElement("button");
+  const downButton = document.createElement("button");
 
-  UpButton.setAttribute("class", "up-down");
-  DownButton.setAttribute("class", "up-down");
+  upButton.setAttribute("class", "up-down up-button");
+  downButton.setAttribute("class", "up-down down-button");
 
-  UpButton.setAttribute("id", floors);
-  DownButton.setAttribute("id", floors);
+  upButton.setAttribute("id", `up-${floors}`);
+  downButton.setAttribute("id", `down-${floors}`);
 
-  UpButton.innerText = "UP";
-  DownButton.innerText = "Down";
+  upButton.innerText = "UP";
+  downButton.innerText = "Down";
 
-  UpButton.dataset.floor = floors;
-  DownButton.dataset.floor = floors;
+  upButton.dataset.floor = floors;
+  downButton.dataset.floor = floors;
 
-  buttonContainer.append(UpButton);
-  buttonContainer.append(DownButton);
+  buttonContainer.append(upButton);
+  buttonContainer.append(downButton);
 
   let floorNumber = document.createElement("p");
-
   floorNumber.setAttribute("class", "floorName");
-
   floorNumber.innerText = `Floor ${floors}`;
 
   buttonContainer.append(floorNumber);
-
   floorContainer.append(buttonContainer);
-
   floorDiv.append(floorContainer);
-
   container.append(floorDiv);
 
-  for (let j = 0; j < lifts; j++) {
+  if (floors === 1) {
+    for (let j = 0; j < lifts; j++) {
+      let upLift = createLift("up");
+      let downLift = createLift("down");
+      
+      liftContainer.appendChild(upLift);
+      liftContainer.appendChild(downLift);
+    }
+    
+    liftContainer.setAttribute("class", "lift");
+    floorContainer.append(liftContainer);
+    floorDiv.append(floorContainer);
+    
     if (floors === 1) {
-      let Lifts = document.createElement("div");
-      Lifts.setAttribute("class", "lift-div");
-      DownButton.classList.add("remove-btn");
-      Lifts.setAttribute("onfloor", 1);
-
-      Lifts.dataset.currentLocation = prevFloor;
-      console.log(prevFloor);
-
-      leftDoor = document.createElement("div");
-      RightDoor = document.createElement("div");
-
-      leftDoor.setAttribute("class", "left-door");
-      RightDoor.setAttribute("class", "right-door");
-
-      Lifts.appendChild(leftDoor);
-      Lifts.appendChild(RightDoor);
-
-      liftContainer.appendChild(Lifts);
-      liftContainer.setAttribute("class", "lift");
-
-      floorContainer.append(liftContainer);
-
-      floorDiv.append(floorContainer);
+      downButton.classList.add("remove-btn");
     }
   }
 }
 
-let x = 0;
+function createLift(direction) {
+  let lift = document.createElement("div");
+  lift.setAttribute("class", `lift-div ${direction}-lift`);
+  lift.setAttribute("onfloor", 1);
+  lift.dataset.currentLocation = prevFloor;
+  lift.dataset.direction = direction;
+
+  let leftDoor = document.createElement("div");
+  let rightDoor = document.createElement("div");
+
+  leftDoor.setAttribute("class", "left-door");
+  rightDoor.setAttribute("class", "right-door");
+
+  lift.appendChild(leftDoor);
+  lift.appendChild(rightDoor);
+
+  return lift;
+}
 
 document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("up-down")) {
-    if (e.target.dataset.floor === x) {
-      return;
-    } else {
-      LiftStatus(e.target.dataset.floor);
-    }
+  if (e.target.classList.contains("up-button") || e.target.classList.contains("down-button")) {
+    if (e.target.disabled) return;
 
-    x = e.target.dataset.floor;
+    const direction = e.target.classList.contains("up-button") ? "up" : "down";
+    const clickedFloor = parseInt(e.target.dataset.floor);
+    
+    // Disable the button
+    e.target.disabled = true;
+    e.target.classList.add("button-disabled");
+
+    liftStatus(clickedFloor, direction, e.target);
   }
 });
 
-function LiftStatus(clickedFloor) {
-  const lifts = document.querySelectorAll(".lift-div");
-
+function liftStatus(clickedFloor, direction, button) {
+  const lifts = document.querySelectorAll(`.${direction}-lift`);
   let pos;
 
   for (let i = 0; i < lifts.length; i++) {
-    if (lifts[i].classList.contains("busy")) {
+    if (!lifts[i].classList.contains("busy")) {
       let onFloorVal = parseInt(lifts[i].getAttribute("onfloor"));
 
       if (onFloorVal === clickedFloor) {
+        moveLift(clickedFloor, i, direction, button);
         return;
-      }
-    } else {
-      for (let i = 0; i < lifts.length; i++) {
-        let onFloorVal = parseInt(lifts[i].getAttribute("onfloor"));
-
-        if (onFloorVal === clickedFloor) {
-          MoveLift(clickedFloor, i);
-          return;
-        }
       }
 
       pos = i;
-      MoveLift(clickedFloor, pos);
-      break;
+      moveLift(clickedFloor, pos, direction, button);
+      return;
     }
   }
 
   if (pos === undefined) {
-    targetFloors.push(clickedFloor);
+    if (direction === "up") {
+      upTargetFloors.push({floor: clickedFloor, button: button});
+    } else {
+      downTargetFloors.push({floor: clickedFloor, button: button});
+    }
   }
 }
 
-function MoveLift(clickedFloor, pos) {
-  const elevators = document.getElementsByClassName("lift-div");
-
+function moveLift(clickedFloor, pos, direction, button) {
+  const elevators = document.getElementsByClassName(`${direction}-lift`);
   const elevator = elevators[pos];
 
   let currentFloor = elevator.getAttribute("onfloor");
@@ -189,8 +181,14 @@ function MoveLift(clickedFloor, pos) {
   setTimeout(() => {
     elevator.classList.remove("busy");
 
+    // Re-enable the button
+    button.disabled = false;
+    button.classList.remove("button-disabled");
+
+    const targetFloors = direction === "up" ? upTargetFloors : downTargetFloors;
     if (targetFloors.length) {
-      MoveLift(targetFloors.shift(), pos);
+      const nextFloor = targetFloors.shift();
+      moveLift(nextFloor.floor, pos, direction, nextFloor.button);
     }
   }, duration * 1000 + 7000);
 }
