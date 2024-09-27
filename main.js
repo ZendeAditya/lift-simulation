@@ -8,8 +8,7 @@ let floorVal = "";
 let liftVal = "";
 let prevFloor = 0;
 
-let upTargetFloors = [];
-let downTargetFloors = [];
+let targetFloors = [];
 
 submitButton.addEventListener("click", () => {
   if (!liftInput.value && !floorInput.value) {
@@ -74,29 +73,23 @@ function createFloors(floors, lifts) {
 
   if (floors === 1) {
     for (let j = 0; j < lifts; j++) {
-      let upLift = createLift("up");
-      let downLift = createLift("down");
-      
-      liftContainer.appendChild(upLift);
-      liftContainer.appendChild(downLift);
+      let lift = createLift();
+      liftContainer.appendChild(lift);
     }
     
     liftContainer.setAttribute("class", "lift");
     floorContainer.append(liftContainer);
     floorDiv.append(floorContainer);
     
-    if (floors === 1) {
-      downButton.classList.add("remove-btn");
-    }
+    downButton.classList.add("remove-btn");
   }
 }
 
-function createLift(direction) {
+function createLift() {
   let lift = document.createElement("div");
-  lift.setAttribute("class", `lift-div ${direction}-lift`);
+  lift.setAttribute("class", "lift-div");
   lift.setAttribute("onfloor", 1);
   lift.dataset.currentLocation = prevFloor;
-  lift.dataset.direction = direction;
 
   let leftDoor = document.createElement("div");
   let rightDoor = document.createElement("div");
@@ -114,47 +107,42 @@ document.addEventListener("click", (e) => {
   if (e.target.classList.contains("up-button") || e.target.classList.contains("down-button")) {
     if (e.target.disabled) return;
 
-    const direction = e.target.classList.contains("up-button") ? "up" : "down";
     const clickedFloor = parseInt(e.target.dataset.floor);
     
     // Disable the button
     e.target.disabled = true;
     e.target.classList.add("button-disabled");
 
-    liftStatus(clickedFloor, direction, e.target);
+    liftStatus(clickedFloor, e.target);
   }
 });
 
-function liftStatus(clickedFloor, direction, button) {
-  const lifts = document.querySelectorAll(`.${direction}-lift`);
-  let pos;
+function liftStatus(clickedFloor, button) {
+  const lifts = document.querySelectorAll(".lift-div");
+  let nearestLift = null;
+  let minDistance = Infinity;
 
   for (let i = 0; i < lifts.length; i++) {
     if (!lifts[i].classList.contains("busy")) {
       let onFloorVal = parseInt(lifts[i].getAttribute("onfloor"));
+      let distance = Math.abs(onFloorVal - clickedFloor);
 
-      if (onFloorVal === clickedFloor) {
-        moveLift(clickedFloor, i, direction, button);
-        return;
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestLift = i;
       }
-
-      pos = i;
-      moveLift(clickedFloor, pos, direction, button);
-      return;
     }
   }
 
-  if (pos === undefined) {
-    if (direction === "up") {
-      upTargetFloors.push({floor: clickedFloor, button: button});
-    } else {
-      downTargetFloors.push({floor: clickedFloor, button: button});
-    }
+  if (nearestLift !== null) {
+    moveLift(clickedFloor, nearestLift, button);
+  } else {
+    targetFloors.push({floor: clickedFloor, button: button});
   }
 }
 
-function moveLift(clickedFloor, pos, direction, button) {
-  const elevators = document.getElementsByClassName(`${direction}-lift`);
+function moveLift(clickedFloor, pos, button) {
+  const elevators = document.getElementsByClassName("lift-div");
   const elevator = elevators[pos];
 
   let currentFloor = elevator.getAttribute("onfloor");
@@ -185,10 +173,9 @@ function moveLift(clickedFloor, pos, direction, button) {
     button.disabled = false;
     button.classList.remove("button-disabled");
 
-    const targetFloors = direction === "up" ? upTargetFloors : downTargetFloors;
     if (targetFloors.length) {
       const nextFloor = targetFloors.shift();
-      moveLift(nextFloor.floor, pos, direction, nextFloor.button);
+      liftStatus(nextFloor.floor, nextFloor.button);
     }
   }, duration * 1000 + 7000);
 }
