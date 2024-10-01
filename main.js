@@ -25,7 +25,7 @@ submitButton.addEventListener("click", () => {
     container.innerHTML = "";
     liftContainer.innerHTML = "";
     for (let i = floorInput.value; i > 0; i--) {
-      createFloors(i, liftInput.value);
+      createFloors(i, liftInput.value, parseInt(floorInput.value));
     }
 
     liftInput.value = "";
@@ -33,7 +33,7 @@ submitButton.addEventListener("click", () => {
   }
 });
 
-function createFloors(floors, lifts) {
+function createFloors(floors, lifts, totalFloors) {
   const floorDiv = document.createElement("div");
   floorDiv.setAttribute("class", "floordiv");
 
@@ -44,23 +44,23 @@ function createFloors(floors, lifts) {
   const buttonContainer = document.createElement("div");
   buttonContainer.setAttribute("class", "btn-div");
 
-  const upButton = document.createElement("button");
-  const downButton = document.createElement("button");
+  if (floors < totalFloors) {
+    const upButton = document.createElement("button");
+    upButton.setAttribute("class", "up-down up-button");
+    upButton.setAttribute("id", `up-${floors}`);
+    upButton.innerText = "UP";
+    upButton.dataset.floor = floors;
+    buttonContainer.append(upButton);
+  }
 
-  upButton.setAttribute("class", "up-down up-button");
-  downButton.setAttribute("class", "up-down down-button");
-
-  upButton.setAttribute("id", `up-${floors}`);
-  downButton.setAttribute("id", `down-${floors}`);
-
-  upButton.innerText = "UP";
-  downButton.innerText = "Down";
-
-  upButton.dataset.floor = floors;
-  downButton.dataset.floor = floors;
-
-  buttonContainer.append(upButton);
-  buttonContainer.append(downButton);
+  if (floors > 1) {
+    const downButton = document.createElement("button");
+    downButton.setAttribute("class", "up-down down-button");
+    downButton.setAttribute("id", `down-${floors}`);
+    downButton.innerText = "Down";
+    downButton.dataset.floor = floors;
+    buttonContainer.append(downButton);
+  }
 
   let floorNumber = document.createElement("p");
   floorNumber.setAttribute("class", "floorName");
@@ -80,8 +80,6 @@ function createFloors(floors, lifts) {
     liftContainer.setAttribute("class", "lift");
     floorContainer.append(liftContainer);
     floorDiv.append(floorContainer);
-    
-    downButton.classList.add("remove-btn");
   }
 }
 
